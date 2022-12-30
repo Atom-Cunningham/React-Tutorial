@@ -45,37 +45,43 @@ import './index.css';
         super(props);
         this.state = { 
             history: [{ squares : Array(9).fill(null) }],
+            positionNumber: 0,
             xIsNext: true,
         }
     }
 
     handleClick(i){
-        const history = this.state.history;
-        const current = history[history.length - 1];
+        const moveNum = this.state.positionNumber;
+        const history = this.state.history.slice(0,  moveNum + 1);
+        const current = history[moveNum];
         const arr = current.squares.slice(); 
 
         if(calculateWinner(arr) || arr[i]){
             return;
         }
+
         arr[i] = this.state.xIsNext ? 'X' : '0';
         this.setState( {history : history.concat([{squares: arr}]),
+                        positionNumber : moveNum +1,
                         xIsNext: !this.state.xIsNext,
                     });
     }
 
-    jumpToPosistion(){
-
+    jumpToPosistion(i){
+        this.setState({ positionNumber: i,
+                        xIsNext: (i % 2) === 0,
+                    });
     }
 
     render() {
       const history = this.state.history;
-      const current = history[history.length - 1];
+      const current = history[this.state.positionNumber];
       const winner = calculateWinner(current.squares)
 
       const moves = history.map((position,idx) => {
-        const buttonLabel = idx ? "go to move" + idx : "go to start"
+        const buttonLabel = idx ? "go to move " + idx : "go to start"
         return(
-            <li>
+            <li key = {idx}>
                 <button onClick = {() =>  this.jumpToPosistion(idx) }> {buttonLabel} </button>
             </li>
             );
@@ -101,8 +107,6 @@ import './index.css';
       );
     }
   }
-
-
 
   function calculateWinner(squares) {
     const lines = [
